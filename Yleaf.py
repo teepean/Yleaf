@@ -37,6 +37,10 @@ def get_arguments():
         dest="Cramfile", required=False,
         help="input CRAM file", metavar="PATH")            
 
+    parser.add_argument("-aligner", "--aligner",
+            dest="Aligner", required=False,
+            help="Choose aligner to use (bwa or bowtie2)", metavar="STRING")
+
     parser.add_argument("-f", "--fasta-ref",  dest="reference",
             help="fasta reference genome sequence ", metavar="PATH", required=False)    
 
@@ -502,7 +506,10 @@ if __name__ == "__main__":
                     if create_tmp_dirs(folder):                                            
                         start_time = time.time()
                         sam_file = folder+"/"+folder_name+".sam"                                                               
-                        fastq_cmd = "bwa mem -t {} {} {} > {}".format(args.threads, args.reference, path_file, sam_file)
+                        if args.Aligner == 'bowtie2':
+                            fastq_cmd = "bowtie2 --very-sensitive -p {} -x {} -U {} > {}".format(args.threads, args.reference, path_file, sam_file)
+                        else:
+                        	fastq_cmd = "bwa mem -t {} {} {} > {}".format(args.threads, args.reference, path_file, sam_file)
                         print(fastq_cmd)
                         subprocess.call(fastq_cmd, shell=True)
                         print("--- %s seconds in Indexing reads to reference ---" % (time.time()-start_time))                
